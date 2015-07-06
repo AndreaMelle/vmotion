@@ -1,0 +1,2 @@
+xcopy .\VMotion\VMotionLib\lib\Win32\Release\VMotionLib.dll .\VMotion-Unity\Assets\Plugins\x86  /H /R /Y
+xcopy .\VMotion\VMotionLib\lib\x64\Release\VMotionLib.dll .\VMotion-Unity\Assets\Plugins\x86_64 /H /R /Y
