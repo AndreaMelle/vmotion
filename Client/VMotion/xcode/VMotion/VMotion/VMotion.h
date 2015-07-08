@@ -12,4 +12,8 @@
 
 @interface VMotion : NSObject <CBCentralManagerDelegate>
 
+- (void) startScan;
+- (void) stopScan;
+- (BOOL) isLECapableHardware;
+
 @end

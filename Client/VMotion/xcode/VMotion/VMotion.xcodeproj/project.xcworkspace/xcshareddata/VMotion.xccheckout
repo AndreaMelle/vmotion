@@ -7,17 +7,17 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>6985079C-D32F-4B94-B492-E77C5E1815B1</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>VMotion</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>098ADF6E23A153BA4634D1F7636B1D4A0D180DD5</key>
+		<key>1C5A78D002467D2A3A68DE70D447EDB0DD364FEE</key>
 		<string>github.com:AndreaMelle/vmotion.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Client/VMotion/xcode/VMotion/VMotion.xcodeproj/project.xcworkspace</string>
+	<string>Client/VMotion/xcode/VMotion/VMotion.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>098ADF6E23A153BA4634D1F7636B1D4A0D180DD5</key>
+		<key>1C5A78D002467D2A3A68DE70D447EDB0DD364FEE</key>
 		<string>../../../../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
@@ -25,14 +25,14 @@
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>098ADF6E23A153BA4634D1F7636B1D4A0D180DD5</string>
+	<string>1C5A78D002467D2A3A68DE70D447EDB0DD364FEE</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>098ADF6E23A153BA4634D1F7636B1D4A0D180DD5</string>
+			<string>1C5A78D002467D2A3A68DE70D447EDB0DD364FEE</string>
 			<key>IDESourceControlWCCName</key>
 			<string>vmotion</string>
 		</dict>

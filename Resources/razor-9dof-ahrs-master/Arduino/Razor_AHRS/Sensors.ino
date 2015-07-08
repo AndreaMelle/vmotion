@@ -1,8 +1,4 @@
-void read_sensors() {
-  Read_Gyro(); // Read gyroscope
-  Read_Accel(); // Read accelerometer
-  Read_Magn(); // Read magnetometer
-}
+/* This file is part of the Razor AHRS Firmware */
 
 // I2C code to read the sensors
 
@@ -74,10 +70,11 @@ void Read_Accel()
     accel[1] = (((int) buff[1]) << 8) | buff[0];  // Y axis (internal sensor x axis)
     accel[2] = (((int) buff[5]) << 8) | buff[4];  // Z axis (internal sensor z axis)
   }
-//  else
-//  {
-//    num_accel_errors++;
-//  }
+  else
+  {
+    num_accel_errors++;
+    if (output_errors) Serial.println("!ERR: reading accelerometer");
+  }
 }
 
 void Magn_Init()
@@ -141,10 +138,11 @@ void Read_Magn()
     magnetom[2] = -1 * ((((int) buff[2]) << 8) | buff[3]);  // Z axis (internal sensor -z axis)
 #endif
   }
-//  else
-//  {
-//    num_magn_errors++;
-//  }
+  else
+  {
+    num_magn_errors++;
+    if (output_errors) Serial.println("!ERR: reading magnetometer");
+  }
 }
 
 void Gyro_Init()
@@ -204,8 +202,9 @@ void Read_Gyro()
     gyro[1] = -1 * ((((int) buff[0]) << 8) | buff[1]);    // Y axis (internal sensor -x axis)
     gyro[2] = -1 * ((((int) buff[4]) << 8) | buff[5]);    // Z axis (internal sensor -z axis)
   }
-//  else
-//  {
-//    num_gyro_errors++;
-//  }
+  else
+  {
+    num_gyro_errors++;
+    if (output_errors) Serial.println("!ERR: reading gyroscope");
+  }
 }

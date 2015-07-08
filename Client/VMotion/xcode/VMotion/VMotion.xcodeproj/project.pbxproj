@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B14601091B4B164A00CA41CA /* VMotionController.m in Sources */ = {isa = PBXBuildFile; fileRef = B14601081B4B164A00CA41CA /* VMotionController.m */; };
 		B17D30D91B4A6BAF00DFD30F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B17D30D81B4A6BAF00DFD30F /* main.m */; };
 		B17D30DF1B4A6BE900DFD30F /* VMotion.m in Sources */ = {isa = PBXBuildFile; fileRef = B17D30DE1B4A6BE900DFD30F /* VMotion.m */; };
 /* End PBXBuildFile section */
@@ -24,6 +25,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B14601071B4B164A00CA41CA /* VMotionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMotionController.h; sourceTree = "<group>"; };
+		B14601081B4B164A00CA41CA /* VMotionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMotionController.m; sourceTree = "<group>"; };
 		B17D30C81B4A6B7700DFD30F /* VMotion.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VMotion.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		B17D30CC1B4A6B7700DFD30F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B17D30D61B4A6BAF00DFD30F /* VMotionSample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VMotionSample; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -82,6 +85,8 @@
 				B17D30CC1B4A6B7700DFD30F /* Info.plist */,
 				B17D30DD1B4A6BE900DFD30F /* VMotion.h */,
 				B17D30DE1B4A6BE900DFD30F /* VMotion.m */,
+				B14601071B4B164A00CA41CA /* VMotionController.h */,
+				B14601081B4B164A00CA41CA /* VMotionController.m */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -181,6 +186,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B14601091B4B164A00CA41CA /* VMotionController.m in Sources */,
 				B17D30DF1B4A6BE900DFD30F /* VMotion.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -334,6 +340,7 @@
 				B17D30D11B4A6B7700DFD30F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B17D30DA1B4A6BAF00DFD30F /* Build configuration list for PBXNativeTarget "VMotionSample" */ = {
 			isa = XCConfigurationList;
@@ -342,6 +349,7 @@
 				B17D30DC1B4A6BAF00DFD30F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

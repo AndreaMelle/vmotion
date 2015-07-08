@@ -1,34 +1,4 @@
-// Read every sensor and record a time stamp
-// Init DCM with unfiltered orientation
-// TODO re-init global vars?
-void reset_sensor_fusion() {
-  float temp1[3];
-  float temp2[3];
-  float xAxis[] = {1.0f, 0.0f, 0.0f};
-
-  read_sensors();
-  timestamp = millis();
-
-  // GET PITCH
-  // Using y-z-plane-component/x-component of gravity vector
-  pitch = -atan2(accel[0], sqrt(accel[1] * accel[1] + accel[2] * accel[2]));
-
-  // GET ROLL
-  // Compensate pitch of gravity vector
-  Vector_Cross_Product(temp1, accel, xAxis);
-  Vector_Cross_Product(temp2, xAxis, temp1);
-  // Normally using x-z-plane-component/y-component of compensated gravity vector
-  // roll = atan2(temp2[1], sqrt(temp2[0] * temp2[0] + temp2[2] * temp2[2]));
-  // Since we compensated for pitch, x-z-plane-component equals z-component:
-  roll = atan2(temp2[1], temp2[2]);
-
-  // GET YAW
-  Compass_Heading();
-  yaw = MAG_Heading;
-
-  // Init rotation matrix
-  init_rotation_matrix(DCM_Matrix, yaw, pitch, roll);
-}
+/* This file is part of the Razor AHRS Firmware */
 
 // DCM algorithm
 
@@ -115,6 +85,17 @@ void Matrix_update(void)
   Vector_Add(&Omega[0], &Gyro_Vector[0], &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
   
+#if DEBUG__NO_DRIFT_CORRECTION == true // Do not use drift correction
+  Update_Matrix[0][0]=0;
+  Update_Matrix[0][1]=-G_Dt*Gyro_Vector[2];//-z
+  Update_Matrix[0][2]=G_Dt*Gyro_Vector[1];//y
+  Update_Matrix[1][0]=G_Dt*Gyro_Vector[2];//z
+  Update_Matrix[1][1]=0;
+  Update_Matrix[1][2]=-G_Dt*Gyro_Vector[0];
+  Update_Matrix[2][0]=-G_Dt*Gyro_Vector[1];
+  Update_Matrix[2][1]=G_Dt*Gyro_Vector[0];
+  Update_Matrix[2][2]=0;
+#else // Use drift correction
   Update_Matrix[0][0]=0;
   Update_Matrix[0][1]=-G_Dt*Omega_Vector[2];//-z
   Update_Matrix[0][2]=G_Dt*Omega_Vector[1];//y
@@ -124,6 +105,7 @@ void Matrix_update(void)
   Update_Matrix[2][0]=-G_Dt*Omega_Vector[1];//-y
   Update_Matrix[2][1]=G_Dt*Omega_Vector[0];//x
   Update_Matrix[2][2]=0;
+#endif
 
   Matrix_Multiply(DCM_Matrix,Update_Matrix,Temporary_Matrix); //a*b=c
 
