@@ -91,7 +91,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;VMOTION_EXPORT;_USRDLL;DEBUG_LOG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\VMotionLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\deps;..\..\deps;..\VMotionLib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -162,12 +163,16 @@
     <ClInclude Include="include\internals\EndianHelpers.h" />
     <ClInclude Include="include\internals\enumser.h" />
     <ClInclude Include="include\internals\commonheaders.h" />
+    <ClInclude Include="include\internals\SensorFusion.h" />
     <ClInclude Include="include\internals\WinDevices.h" />
+    <ClInclude Include="include\IVMotionController.h" />
     <ClInclude Include="include\VMotion.h" />
     <ClInclude Include="include\VMotionController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\enumser.cpp" />
+    <ClCompile Include="src\IVMotionController.cpp" />
+    <ClCompile Include="src\SensorFusion.cpp" />
     <ClCompile Include="src\VMotion.cpp" />
     <ClCompile Include="src\VMotionController.cpp" />
     <ClCompile Include="src\WinDevices.cpp" />

@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	signal(SIGINT, &SigInt_Handler);
 	signal(SIGBREAK, &SigBreak_Handler);
 
-	VMotionInit(&OnVMotionControllerConnect);
+	VMotionInit();
 	
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
@@ -49,14 +49,14 @@ int main(int argc, char* argv[])
 			LARGE_INTEGER start, end, elapsed;
 			QueryPerformanceCounter(&start);
 
-			VMOTION_VECTOR state = { 0 };
+			VMOTION_STATE state = { 0 };
 
-			if (VMotionGetYPR(i, state, 1000) == VMOTION_SUCCESS)
+			if (VMotionGetState(i, &state, 1000) == VMOTION_SUCCESS)
 			{
 				QueryPerformanceCounter(&end);
 				elapsed.QuadPart = end.QuadPart - start.QuadPart;
 				printf("interval: %fms\n", (elapsed.QuadPart * 1000) / (double)freq.QuadPart);
-				printf("YPR: x: % 1.5f; y: % 1.5f; z: % 1.5f\n", state.x, state.y, state.z);
+				printf("YPR: x: % 1.5f; y: % 1.5f; z: % 1.5f\n", state.data.orientation.x, state.data.orientation.y, state.data.orientation.z);
 			}
 			else
 			{

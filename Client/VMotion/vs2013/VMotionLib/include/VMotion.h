@@ -10,7 +10,6 @@
 #define VMOTION_API __declspec(dllimport)
 #endif
 
-
 typedef int VMOTION_RESULT;
 
 #define VMOTION_INSUCCESS 0 //not as critical as error. data invalid and stuff
@@ -20,9 +19,7 @@ typedef int VMOTION_RESULT;
 #define VMOTION_OUT_OF_RANGE -3
 #define VMOTION_DISCONNECTED -4
 
-#define DEFAULT_COM "COM5"
-
-#define VMOTION_VECTOR_SZ 3
+#define VMOTION_AXIS_DIM 3
 
 #pragma pack(push, 1) //temporarily disable padding
 
@@ -33,7 +30,8 @@ typedef struct VMOTION_VECTOR
 
 typedef struct VMOTION_DATA
 {
-	VMOTION_VECTOR ypr;
+	VMOTION_VECTOR orientation; // the yaw, pitch roll after sensor fusion
+	VMOTION_VECTOR acceleration; //the calibrated acceleration
 	bool button;
 } VMOTION_DATA;
 
@@ -49,14 +47,10 @@ extern "C"
 {
 	typedef void(*VMotionControllerConnectionCB)(void* sender, VMOTION_RESULT connected);
 
-	VMOTION_API VMOTION_RESULT VMotionInit(VMotionControllerConnectionCB cb = NULL, char* device_path = DEFAULT_COM);
+	VMOTION_API VMOTION_RESULT VMotionInit();
 	VMOTION_API VMOTION_RESULT VMotionShutdown();
 	VMOTION_API int VMotionGetControllerCount();
-
-	// Helpers to get data from state...
-
-	VMOTION_API VMOTION_RESULT VMotionGetYPR(unsigned int idx, VMOTION_VECTOR& result, unsigned int timeout = 0);
-	VMOTION_API VMOTION_RESULT VMotionGetYPR_Ptr(unsigned int idx, float* result, unsigned int timeout = 0);
+	VMOTION_API int VMotionGetState(unsigned int idx, VMOTION_STATE* state, unsigned int blocking = 0);
 }
 
 #endif //__V_MOTION__H_

@@ -51,6 +51,12 @@
     <ClInclude Include="include\internals\Devices.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\IVMotionController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\internals\SensorFusion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\enumser.cpp">
@@ -63,6 +69,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\WinDevices.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IVMotionController.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SensorFusion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

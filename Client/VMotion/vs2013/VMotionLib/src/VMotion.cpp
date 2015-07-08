@@ -34,7 +34,7 @@ void DeviceConnected(const wchar_t* device_path)
 	gMotionControllers.push_back(new VMotionController(device_path));
 }
 
-VMOTION_RESULT VMotionInit(VMotionControllerConnectionCB cb, char* device_path)
+VMOTION_RESULT VMotionInit()
 {
 	if (gInitialized)
 	{
@@ -141,7 +141,7 @@ VMOTION_RESULT GetVMotionController(unsigned int idx, VMotionController** elem)
 	return VMOTION_SUCCESS;
 }
 
-int VMotionGetState(unsigned int idx, VMOTION_STATE* state, unsigned int blocking = 0)
+int VMotionGetState(unsigned int idx, VMOTION_STATE* state, unsigned int blocking)
 {
 	// Get the glove from the list
 	VMotionController* elem;
@@ -153,23 +153,6 @@ int VMotionGetState(unsigned int idx, VMOTION_STATE* state, unsigned int blockin
 		return VMOTION_INVALID_ARGUMENT;
 
 	return elem->getState(state, blocking) ? VMOTION_SUCCESS : VMOTION_ERROR;
-}
-
-VMOTION_RESULT VMotionGetYPR(unsigned int idx, VMOTION_VECTOR& result, unsigned int timeout)
-{
-	int ret = VMotionGetState(idx, gState);
-
-	if (ret != VMOTION_SUCCESS)
-		return ret;
-
-	result = gState->data.ypr;
-
-	return VMOTION_SUCCESS;
-}
-
-VMOTION_RESULT VMotionGetYPR_Ptr(unsigned int idx, float* result, unsigned int timeout)
-{
-	return VMotionGetYPR(idx, *((VMOTION_VECTOR*)result), timeout);
 }
 
 

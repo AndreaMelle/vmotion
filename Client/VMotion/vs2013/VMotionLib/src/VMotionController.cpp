@@ -3,26 +3,16 @@
 #include "internals\endianhelpers.h"
 
 VMotionController::VMotionController(const wchar_t* device_path)
-	: mConnected(false)
+	: IVMotionController()
 	, mServiceHandle(INVALID_HANDLE_VALUE)
 	, mNumCharacteristics(0)
 	, mCharacteristics(nullptr)
 	, mEventHandle(INVALID_HANDLE_VALUE)
 	, mValueChangedEvent(nullptr)
 {
-
-	//mConnectTimeoutS = std::chrono::duration<double>(connect_timeout_s);
-
 	size_t len = wcslen(device_path) + 1;
 	mDevicePath = new wchar_t[len];
 	memcpy(mDevicePath, device_path, len * sizeof(wchar_t));
-
-	memset(&mYPRBReport, 0, sizeof(YPRB_REPORT));
-	memset(&mSensorReport, 0, sizeof(SENSOR_REPORT));
-
-	mState.packetNumber = 0;
-
-	memset(&mState.data, 0, sizeof(VMOTION_DATA));
 
 	connect();
 }
@@ -33,13 +23,8 @@ VMotionController::~VMotionController()
 	delete mDevicePath;
 }
 
-void VMotionController::connect()
+bool VMotionController::doConnect()
 {
-	if (isConnected())
-	{
-		disconnect();
-	}
-
 	mServiceHandle = CreateFile(mDevicePath,
 		FILE_GENERIC_READ | FILE_GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
 		nullptr, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr);
@@ -47,7 +32,7 @@ void VMotionController::connect()
 	if (mServiceHandle == INVALID_HANDLE_VALUE)
 	{
 		debug_print("Could not open port\n");
-		return;
+		return false;
 	}
 
 	// Query the required size for the structures.
@@ -56,7 +41,7 @@ void VMotionController::connect()
 
 	// HRESULT will never be S_OK here, so just check the size.
 	if (required_size == 0)
-		return;
+		return false;
 
 	// Allocate the characteristic structures.
 	mCharacteristics = (PBTH_LE_GATT_CHARACTERISTIC) malloc(required_size * sizeof(BTH_LE_GATT_CHARACTERISTIC));
@@ -81,6 +66,7 @@ void VMotionController::connect()
 			{
 				ReadCharacteristic(&m_characteristics[i], &m_calib, sizeof(CALIB_REPORT));
 			}*/
+			//this->loadCalibrationFromReport();
 		}
 
 		// Allocate the value changed structures. 2 because 2 characteristics??
@@ -93,15 +79,14 @@ void VMotionController::connect()
 		HRESULT hr = BluetoothGATTRegisterEvent(mServiceHandle, CharacteristicValueChangedEvent, mValueChangedEvent,
 			VMotionController::OnCharacteristicChanged, this, &mEventHandle, BLUETOOTH_GATT_FLAG_NONE);
 
-		mConnected = SUCCEEDED(hr);
+		return SUCCEEDED(hr);
 	}
-	
+
+	return false;
 }
 
-void VMotionController::disconnect()
+void VMotionController::doDisconnect()
 {
-	mConnected = false;
-
 	if (mEventHandle != INVALID_HANDLE_VALUE)
 		BluetoothGATTUnregisterEvent(mEventHandle, BLUETOOTH_GATT_FLAG_NONE);
 	mEventHandle = INVALID_HANDLE_VALUE;
@@ -136,7 +121,7 @@ void VMotionController::OnCharacteristicChanged(BTH_LE_GATT_EVENT_TYPE event_typ
 
 		if (characteristic->CharacteristicUuid.Value.ShortUuid == VMOTION_YPRB_BLE_CH)
 		{
-			controller->readCharacteristic(characteristic, &controller->mYPRBReport, sizeof(YPRB_REPORT));
+			controller->readCharacteristic(characteristic, &controller->mSensorReport, sizeof(SENSOR_REPORT));
 		}
 		/*else if (characteristic->CharacteristicUuid.Value.ShortUuid == BLE_UUID_MANUS_GLOVE_COMPASS)
 			glove->ReadCharacteristic(characteristic, &glove->m_compass, sizeof(COMPASS_REPORT));*/
@@ -146,40 +131,9 @@ void VMotionController::OnCharacteristicChanged(BTH_LE_GATT_EVENT_TYPE event_typ
 	controller->mDataBlock.notify_all();
 }
 
-void VMotionController::updateState()
+void VMotionController::saveCalibrationReport()
 {
-	mState.packetNumber++;
-	
-	//if mode...
 
-	mState.data.ypr.x = static_cast<float>(mYPRBReport.ypr[0]) / YPR_DATA_DIVISOR;
-	mState.data.ypr.y = static_cast<float>(mYPRBReport.ypr[1]) / YPR_DATA_DIVISOR;
-	mState.data.ypr.z = static_cast<float>(mYPRBReport.ypr[2]) / YPR_DATA_DIVISOR;
-
-	mState.data.button = (mYPRBReport.btn > 0);
-}
-
-bool VMotionController::getState(VMOTION_STATE* state, unsigned int timeout)
-{
-	// Wait until the thread is done writing a packet
-	std::unique_lock<std::mutex> lk(mDataMutex);
-
-	// Optionally wait until the next package is sent
-	if (timeout > 0)
-	{
-		mDataBlock.wait_for(lk, std::chrono::milliseconds(timeout));
-		if (!mConnected)
-		{
-			lk.unlock();
-			return false;
-		}
-	}
-
-	*state = mState;
-
-	lk.unlock();
-
-	return mState.packetNumber > 0;
 }
 
 //uint8_t Glove::GetFlags()
@@ -197,58 +151,6 @@ bool VMotionController::getState(VMOTION_STATE* state, unsigned int timeout)
 //			WriteCharacteristic(&m_characteristics[i], &m_calib, sizeof(CALIB_REPORT));
 //	}
 //}
-
-/*
-VMOTION_RESULT VMotionController::getYawPitchRoll(VMOTION_VECTOR& result, unsigned int timeout)
-{
-	if (YAW_PITCH_ROLL != mMode)
-	{
-		return VMOTION_INVALID_ARGUMENT;
-	}
-
-	std::unique_lock<std::mutex> lk(mDataMutex);
-	
-	if (timeout > 0)
-	{
-		mDataBlock.wait_for(lk, std::chrono::milliseconds(timeout));
-		if (!mConnected)
-		{
-			lk.unlock();
-			return VMOTION_ERROR;
-		}
-	}
-
-	memcpy(&result, &mYawPitchRollState, sizeof(VMOTION_VECTOR));
-	lk.unlock();
-
-	return ( (mDataState > 0) ? VMOTION_SUCCESS : VMOTION_INSUCCESS);
-}
-
-VMOTION_RESULT VMotionController::getSensorData(VMOTION_SENSOR_DATA& result, unsigned int timeout)
-{
-	if (ACC_MAG_GYR_RAW != mMode || ACC_MAG_GYR_CALIBRATED != mMode)
-	{
-		return VMOTION_INVALID_ARGUMENT;
-	}
-
-	std::unique_lock<std::mutex> lk(mDataMutex);
-
-	if (timeout > 0)
-	{
-		mDataBlock.wait_for(lk, std::chrono::milliseconds(timeout));
-		if (!mConnected)
-		{
-			lk.unlock();
-			return VMOTION_ERROR;
-		}
-	}
-
-	memcpy(&result, &mSensorDataState, sizeof(VMOTION_SENSOR_DATA));
-	lk.unlock();
-
-	return ((mDataState > 0) ? VMOTION_SUCCESS : VMOTION_INSUCCESS);
-}
-*/
 
 bool VMotionController::readCharacteristic(PBTH_LE_GATT_CHARACTERISTIC characteristic, void* dest, size_t length)
 {
