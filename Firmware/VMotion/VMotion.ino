@@ -2,30 +2,29 @@
 #include <SPI.h>
 #include <BLEPeripheral.h>
 #include "vmotion_defines.h"
-#include "vmotion_dcm.h"
-#include "vmotion_ble.h"
 
-int output_mode = VMOTION_YPRB_MODE; // Startup output mode
-
-// Sensor variables
-float accel[3];  // Actually stores the NEGATED acceleration (equals gravity, if board not moving).
-float magnetom[3];
-float gyro[3];
-
-// Euler angles
-float yaw, pitch, roll;
+// Raw sensor data - this is all we send!
+word sensorData[10];  // acc mag gyro. Acc actually stores the NEGATED acceleration (equals gravity, if board not moving).
 
 // Sensor calibration scale and offset values
-float acc_offset[3];
-float acc_scale[3];
-float mag_offset[3];
-float mag_scale[3];
-float gyro_offset[3];
+word accCalib[6]; //accMin accMax
+word magCalib[6]; //magMin magMax
+word gyroCalib[3]; //offset
+
+#include "vmotion_ble.h"
 
 // Button variables
 boolean lastButtonState = LOW;
 boolean currentButtonState = LOW;
-long lastDebounceTime = 0;
+unsigned long lastDebounceTime = 0;
+
+unsigned long timestamp;
+unsigned long timestamp_old;
+
+void reset_sensors() {
+  read_sensors();
+  timestamp = millis();
+}
 
 void setup()
 {
@@ -36,7 +35,7 @@ void setup()
   digitalWrite(STATUS_LED_PIN, LOW);
 
   pinMode(BUTTON_PIN, INPUT); // init button pin
-  
+
   load_calibration_data(); //load calibration data
 
   // Init sensors
@@ -47,16 +46,15 @@ void setup()
   Gyro_Init();
 
   //Init bluetooth stack
-  // write mode characteristics - will listen to client's writes
-  // write calibration characteristics - will listen to client's write
-  // init data characteristics - will wait for notify subscription to set new values each frame
+  bleInit();
+
+  // bluetooth begin
+  VMotionPeripheral.begin();
 
   // Read sensors, init DCM algorithm
   delay(20);  // Give sensors enough time to collect data
-  reset_sensor_fusion();
-
-  // bluetooth begin
-  
+  sensorData[9] = (word)currentButtonState;
+  reset_sensors();
 }
 
 void loop()
@@ -74,6 +72,7 @@ void loop()
     if (buttonReading != currentButtonState)
     {
       currentButtonState = buttonReading;
+      sensorData[9] = (word)currentButtonState;
     }
   }
 
@@ -84,37 +83,14 @@ void loop()
   {
     timestamp_old = timestamp;
     timestamp = millis();
-    if (timestamp > timestamp_old)
-    {
-      G_Dt = (float) (timestamp - timestamp_old) / 1000.0f; // Real time of loop run. We use this on the DCM algorithm (gyro integration time)
-    }
-    else
-    {
-      G_Dt = 0;
-    }
 
     // Update sensor readings
     read_sensors();
 
-    if (output_mode == VMOTION_YPRB_MODE)  // We're in calibration mode
+    // update characteristics
+    if (isPeripheralConnected)
     {
-      // output YPRB
-      // Apply sensor calibration
-      compensate_sensor_errors();
-
-      // Run DCM algorithm
-      Compass_Heading(); // Calculate magnetic heading
-      Matrix_update();
-      Normalize();
-      Drift_correction();
-      Euler_angles();
-
-      //output_anglesbutton();
-
-    }
-    else if (output_mode == VMOTION_SENSOR_RAW_MODE)
-    {
-      //output_sensors();
+      bleUpdateState();
     }
   }
 }
