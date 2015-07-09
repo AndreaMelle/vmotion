@@ -54,19 +54,24 @@ bool VMotionController::doConnect()
 		// Configure the characteristics.
 		for (int i = 0; i < mNumCharacteristics; i++)
 		{
-			if (mCharacteristics[i].CharacteristicUuid.Value.ShortUuid == VMOTION_YPRB_BLE_CH)
+			if (mCharacteristics[i].CharacteristicUuid.Value.LongUuid == VMOTION_DATA_CH_UUID)
 			{
 				configureCharacteristic(&mCharacteristics[i], true, false);
 			}
-			/*else if (m_characteristics[i].CharacteristicUuid.Value.ShortUuid == BLE_UUID_MANUS_GLOVE_COMPASS)
+			else if (mCharacteristics[i].CharacteristicUuid.Value.LongUuid == VMOTION_CALIB_ACC_CH_UUID)
 			{
-				ConfigureCharacteristic(&m_characteristics[i], true, false);
+				readCharacteristic(&mCharacteristics[i], &mAccCalibReport, sizeof(MAXMIN_CALIB_REPORT));
 			}
-			else if (m_characteristics[i].CharacteristicUuid.Value.ShortUuid == BLE_UUID_MANUS_GLOVE_CALIB)
+			else if (mCharacteristics[i].CharacteristicUuid.Value.LongUuid == VMOTION_CALIB_MAG_CH_UUID)
 			{
-				ReadCharacteristic(&m_characteristics[i], &m_calib, sizeof(CALIB_REPORT));
-			}*/
-			//this->loadCalibrationFromReport();
+				readCharacteristic(&mCharacteristics[i], &mMagCalibReport, sizeof(MAXMIN_CALIB_REPORT));
+			}
+			else if (mCharacteristics[i].CharacteristicUuid.Value.LongUuid == VMOTION_CALIB_GYRO_CH_UUID)
+			{
+				readCharacteristic(&mCharacteristics[i], &mGyroCalibReport, sizeof(OFFSET_CALIB_REPORT));
+			}
+			
+			this->loadCalibrationFromReport();
 		}
 
 		// Allocate the value changed structures. 2 because 2 characteristics??
@@ -119,12 +124,10 @@ void VMotionController::OnCharacteristicChanged(BTH_LE_GATT_EVENT_TYPE event_typ
 	{
 		PBTH_LE_GATT_CHARACTERISTIC characteristic = &changed_event->Characteristics[i];
 
-		if (characteristic->CharacteristicUuid.Value.ShortUuid == VMOTION_YPRB_BLE_CH)
+		if (characteristic->CharacteristicUuid.Value.LongUuid == VMOTION_DATA_CH_UUID)
 		{
 			controller->readCharacteristic(characteristic, &controller->mSensorReport, sizeof(SENSOR_REPORT));
 		}
-		/*else if (characteristic->CharacteristicUuid.Value.ShortUuid == BLE_UUID_MANUS_GLOVE_COMPASS)
-			glove->ReadCharacteristic(characteristic, &glove->m_compass, sizeof(COMPASS_REPORT));*/
 	}
 
 	controller->updateState();

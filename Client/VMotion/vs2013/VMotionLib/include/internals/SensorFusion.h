@@ -23,7 +23,7 @@ public:
 
 	// only call after the first data has arrived
 	void reset(const Eigen::Vector3f& accel, const Eigen::Vector3f& magnetom);
-	void run(const Eigen::Vector3f& accel, const Eigen::Vector3f& magnetom, const Eigen::Vector3f& gyro, float ypr[3]);
+	void run(const Eigen::Vector3f& accel, const Eigen::Vector3f& magnetom, const Eigen::Vector3f& gyro, Eigen::Vector3f& ypr);
 
 private:
 	std::chrono::high_resolution_clock::time_point timestamp;
@@ -60,26 +60,26 @@ private:
 
 inline void init_rotation_matrix(Eigen::Matrix3f& m, float yaw, float pitch, float roll)
 {
-	float c1 = cos(roll);
-	float s1 = sin(roll);
-	float c2 = cos(pitch);
-	float s2 = sin(pitch);
-	float c3 = cos(yaw);
-	float s3 = sin(yaw);
+	float c1 = cosf(roll);
+	float s1 = sinf(roll);
+	float c2 = cosf(pitch);
+	float s2 = sinf(pitch);
+	float c3 = cosf(yaw);
+	float s3 = sinf(yaw);
 
 	// Euler angles, right-handed, intrinsic, XYZ convention
 	// (which means: rotate around body axes Z, Y', X'') 
-	m(0) = c2 * c3;
-	m(1) = c3 * s1 * s2 - c1 * s3;
-	m(2) = s1 * s3 + c1 * c3 * s2;
+	m(0,0) = c2 * c3;
+	m(0,1) = c3 * s1 * s2 - c1 * s3;
+	m(0,2) = s1 * s3 + c1 * c3 * s2;
 
-	m(3) = c2 * s3;
-	m(4) = c1 * c3 + s1 * s2 * s3;
-	m(5) = c1 * s2 * s3 - c3 * s1;
+	m(1,0) = c2 * s3;
+	m(1,1) = c1 * c3 + s1 * s2 * s3;
+	m(1,2) = c1 * s2 * s3 - c3 * s1;
 
-	m(6) = -s2;
-	m(7) = c2 * s1;
-	m(8) = c1 * c2;
+	m(2,0) = -s2;
+	m(2,1) = c2 * s1;
+	m(2,2) = c1 * c2;
 }
 
 inline float constrain(const float& x, const float& a, const float& b)

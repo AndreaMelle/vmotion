@@ -11,11 +11,11 @@
 #include "VMotion.h"
 #include "internals\SensorFusion.h"
 
-#define VMOTION_BLE_NUM_CH 1
-#define VMOTION_BLE_SE 0x0001 //TODO
-#define VMOTION_YPRB_BLE_CH 0x0002 //TODO
-//#define VMOTION_YPRB_BLE_CH 0x0003 //TODO
-//#define VMOTION_YPRB_BLE_CH 0x0004 //TODO
+static const GUID VMOTION_SERVICE_UUID = { 0x34a189eb, 0x3b60, 0x4c6d, { 0xbb, 0xbb, 0x54, 0x59, 0xa1, 0xda, 0x4e, 0xf5 } };
+static const GUID VMOTION_DATA_CH_UUID = { 0x93f8c6c1, 0x6910, 0x496e, { 0xa3, 0x8f, 0x2e, 0x2f, 0x4f, 0xb2, 0xbf, 0x37 } };
+static const GUID VMOTION_CALIB_ACC_CH_UUID = { 0x8f9451b1, 0x60e8, 0x4ff4, { 0xa2, 0x23, 0x8b, 0xde, 0x73, 0x5e, 0xf6, 0x13 } };
+static const GUID VMOTION_CALIB_MAG_CH_UUID = { 0xc0cd1bee, 0xdf21, 0x4a59, { 0xbf, 0x80, 0xcf, 0xd9, 0x2e, 0x7a, 0x6c, 0x14 } };
+static const GUID VMOTION_CALIB_GYRO_CH_UUID = { 0x23344fae, 0xc0f5, 0x4bef, { 0xb3, 0x6f, 0x64, 0x1a, 0xb2, 0x63, 0x3a, 0xc4 } };
 
 /*
 * Defines the VMotionController interface, with common cross-platform code
@@ -23,6 +23,7 @@
 
 #define VMOTION_CALIB_DIM 2
 #define DEFAULT_QUERY_TIMEOUT 500 //ms
+#define VMOTION_BLE_NUM_CH 1
 
 #pragma pack(push, 1) // exact fit - no padding
 

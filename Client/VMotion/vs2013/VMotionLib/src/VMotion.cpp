@@ -155,5 +155,27 @@ int VMotionGetState(unsigned int idx, VMOTION_STATE* state, unsigned int blockin
 	return elem->getState(state, blocking) ? VMOTION_SUCCESS : VMOTION_ERROR;
 }
 
+int VMotionGetStateUnstruct(unsigned int idx,
+	float* orientation,
+	float* acceleration,
+	unsigned int* button,
+	unsigned int* packetNumber,
+	unsigned int blocking)
+{
+	VMOTION_STATE state = { 0 };
+	int res = VMotionGetState(idx, &state, blocking);
+
+	if (res == VMOTION_SUCCESS)
+	{
+		memcpy(orientation, &state.data.orientation, sizeof(VMOTION_VECTOR));
+		memcpy(acceleration, &state.data.acceleration, sizeof(VMOTION_VECTOR));
+		button[0] = (state.data.button) ? 1 : 0;
+		packetNumber[0] = state.packetNumber;
+	}
+
+	return res;
+
+}
+
 
 

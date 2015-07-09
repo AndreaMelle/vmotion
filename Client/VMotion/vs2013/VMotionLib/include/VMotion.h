@@ -51,6 +51,15 @@ extern "C"
 	VMOTION_API VMOTION_RESULT VMotionShutdown();
 	VMOTION_API int VMotionGetControllerCount();
 	VMOTION_API int VMotionGetState(unsigned int idx, VMOTION_STATE* state, unsigned int blocking = 0);
+
+	// Useful for Unity, for instance
+	VMOTION_API int VMotionGetStateUnstruct(unsigned int idx,
+		float* orientation,
+		float* acceleration,
+		unsigned int* button,
+		unsigned int* packetNumber,
+		unsigned int blocking = 0);
+
 }
 
 #endif //__V_MOTION__H_

@@ -11,7 +11,6 @@
 #include "VMotion.h"
 #include "IVMotionController.h"
 
-static const GUID VMOTION_SERVICE_UUID;//TODO = { 0x1bc50001, 0x0200, 0xeca1, { 0xe4, 0x11, 0x20, 0xfa, 0xc0, 0x4a, 0xfa, 0x8f } };
 
 class VMotionController : public IVMotionController
 {

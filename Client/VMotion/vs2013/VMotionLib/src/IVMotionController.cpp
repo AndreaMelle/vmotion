@@ -41,59 +41,59 @@ void IVMotionController::disconnect()
 void IVMotionController::updateState()
 {
 	//1. cast the report to float
-	float rawAcc[3];
-	float rawMag[3];
-	float rawGyro[3];
-	float calibAcc[3];
-	float calibMag[3];
-	float calibGyro[3];
-	float ypr[3];
+	Eigen::Vector3f rawAcc;
+	Eigen::Vector3f rawMag;
+	Eigen::Vector3f rawGyro;
+	Eigen::Vector3f calibAcc;
+	Eigen::Vector3f calibMag;
+	Eigen::Vector3f calibGyro;
+	Eigen::Vector3f ypr;
 
 	for (register uint8_t i = 0; i < VMOTION_AXIS_DIM; ++i)
 	{
-		rawAcc[i] = static_cast<float>(mSensorReport.accelerometer[i]);
-		rawMag[i] = static_cast<float>(mSensorReport.magnetometer[i]);
-		rawGyro[i] = static_cast<float>(mSensorReport.gyroscope[i]);
+		rawAcc(i) = static_cast<float>(mSensorReport.accelerometer[i]);
+		rawMag(i) = static_cast<float>(mSensorReport.magnetometer[i]);
+		rawGyro(i) = static_cast<float>(mSensorReport.gyroscope[i]);
 	}
 	
 	//2. apply calibration
 
-	calibAcc[0] = (rawAcc[0] - mCalibration.accOffset.x) * mCalibration.accScale.x;
-	calibAcc[1] = (rawAcc[1] - mCalibration.accOffset.y) * mCalibration.accScale.y;
-	calibAcc[2] = (rawAcc[2] - mCalibration.accOffset.z) * mCalibration.accScale.z;
+	calibAcc(0) = (rawAcc(0) - mCalibration.accOffset.x) * mCalibration.accScale.x;
+	calibAcc(1) = (rawAcc[1] - mCalibration.accOffset.y) * mCalibration.accScale.y;
+	calibAcc(2) = (rawAcc(2) - mCalibration.accOffset.z) * mCalibration.accScale.z;
 
 #if CALIBRATION__MAGN_USE_EXTENDED
 	for (int i = 0; i < 3; i++)
 		magnetom_tmp[i] = magnetom[i] - magn_ellipsoid_center[i];
 	Matrix_Vector_Multiply(magn_ellipsoid_transform, magnetom_tmp, magnetom);
 #else
-	calibMag[0] = (rawMag[0] - mCalibration.magOffset.x) * mCalibration.magScale.x;
-	calibMag[1] = (rawMag[1] - mCalibration.magOffset.y) * mCalibration.magScale.y;
-	calibMag[2] = (rawMag[2] - mCalibration.magOffset.z) * mCalibration.magScale.z;
+	calibMag(0) = (rawMag(0) - mCalibration.magOffset.x) * mCalibration.magScale.x;
+	calibMag(1) = (rawMag(1) - mCalibration.magOffset.y) * mCalibration.magScale.y;
+	calibMag(2) = (rawMag(2) - mCalibration.magOffset.z) * mCalibration.magScale.z;
 #endif
 
-	calibGyro[0] -= mCalibration.gyroOffset.x;
-	calibGyro[1] -= mCalibration.gyroOffset.y;
-	calibGyro[2] -= mCalibration.gyroOffset.z;
+	calibGyro(0) -= mCalibration.gyroOffset.x;
+	calibGyro(1) -= mCalibration.gyroOffset.y;
+	calibGyro(2) -= mCalibration.gyroOffset.z;
 
 	//3. run DCM sensor fusion
 	if (mSensorFusionNeedsReset)
-	{
-		//mSensorFusion.reset(calibAcc, calibMag);
+	{	
+		mSensorFusion.reset(calibAcc, calibMag);
 	}
 
-	//mSensorFusion.run(calibAcc, calibMag, calibGyro, ypr);
+	mSensorFusion.run(calibAcc, calibMag, calibGyro, ypr);
 
 	//4. update state
 	mState.data.button = (mSensorReport.btn > 0) ? true : false;
 
-	mState.data.acceleration.x = calibAcc[0];
-	mState.data.acceleration.y = calibAcc[1];
-	mState.data.acceleration.z = calibAcc[2];
+	mState.data.acceleration.x = calibAcc(0);
+	mState.data.acceleration.y = calibAcc(1);
+	mState.data.acceleration.z = calibAcc(2);
 
-	mState.data.orientation.x = ypr[0];
-	mState.data.orientation.y = ypr[1];
-	mState.data.orientation.z = ypr[2];
+	mState.data.orientation.x = ypr(0);
+	mState.data.orientation.y = ypr(1);
+	mState.data.orientation.z = ypr(2);
 
 	mState.packetNumber++;
 
